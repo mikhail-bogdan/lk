@@ -10,6 +10,8 @@ from config import CFG
 
 app = Flask(__name__, static_folder='static')
 
+months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+
 @app.route('/')
 def mainPage():
     data = {'_username' : "st43026", '_password' :"UH7phwwsx7"}
@@ -35,7 +37,7 @@ def mainPage():
         output += '</div><div style="width: 30%; display: inline-block">'
         output += d['name']
         output += '</div><div style="width: 30%; display:inline-block">'
-        output += str(d['harddeadline'])
+        output += date[2] + " " + months[int(date[1]) - 1]
         output += '</div></div>\n'
     return output
     
