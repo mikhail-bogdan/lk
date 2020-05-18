@@ -17,49 +17,35 @@ months = ['января', 'февраля', 'марта', 'апреля', 'ма�
 @app.route('/')
 def mainPage():
     global data
-    output = '<head><title>Задания с дедлайнами</title><meta charset="utf-8"><link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48">\n' \
-             '<style>\n' \
-             '.but:hover {\n' \
-             'background: #786b59;\n' \
-             'color: #ffe;\n' \
-             '}\n' \
-             '</style>\n' \
-             '<script>\n' \
-             'function onClick(argument) {\n' \
-             'element = argument.parentElement.getElementsByClassName("desc")[0];\n' \
-             'if (element.style.display === "none") {\n' \
-             'element.style.display = "block"\n' \
-             'argument.innerHTML = "<i>Скрыть описание</i>"\n' \
-             '}\n' \
-             'else {\n' \
-             'element.style.display = "none"\n' \
-             'argument.innerHTML = "<i>Показать описание</i>"\n' \
-             '}\n' \
-             '}\n' \
-             '</script>\n' \
+    output = '<head>' \
+             '<title>Задания с дедлайнами</title>' \
+             '<meta charset="utf-8">' \
+             '<link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48">\n' \
+             '<link rel="stylesheet" type="text/css" href="/static/styles.css">' \
+             '<script src="/static/functions.js"></script>' \
              '</head>'\
-             '<div style="border-colords;border-color: red;border-style: solid;border-width: thin; padding: 0.4%;">'\
-             '<div style="width: 30%; display: inline-block"><big><b>Название предмета</b></big></div>'\
-             '<div style="width: 30%; display: inline-block"><big><b>Название задания</b></big></div>'\
-             '<div style="width: 30%; display: inline-block"><big><b>Дедлайн</b></big></div>'\
+             '<div class="task">' \
+             '<div class="name"><big><b>Название предмета</b></big></div>' \
+             '<div class="subject"><big><b>Название задания</b></big></div>' \
+             '<div class="deadline"><big><b>Дедлайн</b></big></div>' \
              '</div>'
     
     for d in data:
-        output += '<div style="border-color: red; border-style: solid; border-width: thin; padding: 0.4%;">' \
-                  '<div style="width: 30%; display: inline-block">'
+        output += '<div class="inner-task">' \
+                  '<div class="name">'
         output += d['subject_name']
-        output += '</div><div style="width: 30%; display: inline-block;">'
+        output += '</div><div class="subject">'
         output += d['name']
-        output += '</div><div style="width: 10%; display: inline-block;">'
+        output += '</div><div class="deadline">'
         output += str(d['day']) + " " + months[d['month'] - 1]
-        output += '</div><div class="but" style="width: 10%; display: inline-block;" onclick="onClick(this)">' \
+        output += '</div><div class="but" onclick="onClick(this)">' \
                   '<i>Показать описание</i>' \
-                  '</div><div style="width: 10%; display: inline-block;">'
-        if d['hash'] != None :
+                  '</div><div class="additional">'
+        if d['hash'] is not None:
             output += '<a href="https://pro.guap.ru/get-task/' + str(d['hash']) + '">Доп. материалы</a>'
         else:
             output += 'Нет'
-        output += '</div><div class= "desc" style="width: 90%; display: none; border-color: red; border-style: solid; border-width: thin 0 0 0; padding-top: 10px;">'
+        output += '</div><div class= "desc" style="display: none"><b>Описание задания: </b>'
         output += d['description']
         output += '</div></div>\n'
     return output
@@ -69,7 +55,7 @@ def mysort(data):
     i = 0
     while i < len(data):
         d = data[i]
-        if d['harddeadline'] == None or d['reportRequired'] == "0":
+        if d['harddeadline'] is None or d['reportRequired'] == "0":
             data.remove(d)
         else:
             time = localtime()
