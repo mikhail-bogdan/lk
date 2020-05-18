@@ -7,6 +7,7 @@ from time import localtime
 
 from config import CFG
 
+global cookies
 
 app = Flask(__name__, static_folder='static')
 
@@ -14,16 +15,16 @@ months = ['января', 'февраля', 'марта', 'апреля', 'ма�
 
 @app.route('/')
 def mainPage():
-    data = {'_username' : "st43026", '_password' :"UH7phwwsx7"}
-    r = get("https://pro.guap.ru/user/login")
-    cookies = r.cookies
-    r = post("https://pro.guap.ru/user/login_check", data=data, cookies=cookies)
-    cookies = r.history[0].cookies.get_dict()
-    cookies.update(r.history[2].cookies.get_dict())
-    data = {'iduser' : "17398"}
-    r = post("https://pro.guap.ru/get-student-tasksdictionaries/", data=data, cookies=cookies)
-    data = loads(r.text)['tasks']
-    print(data)
+    global cookies
+    request_data = {'iduser' : "17398"}
+    r = post("https://pro.guap.ru/get-student-tasksdictionaries/", data=request_data, cookies=cookies)
+    data = loads(r.text)
+    if data['tasks'] == None:
+        reLogin()
+        print("reLogin")
+        r = post("https://pro.guap.ru/get-student-tasksdictionaries/", data=request_data, cookies=cookies)
+        data = loads(r.text)
+    data = data['tasks']
     data = mysort(data)
     output = '<head><title>Задания с дедлайнами</title><meta charset="utf-8"><link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48"></head>'
     output += '<div style="border-colords;border-color: red;border-style: solid;border-width: thin; padding: 0.4%;">'
@@ -87,7 +88,18 @@ def myswap(data, i, j):
     tmp = data[i]
     data[i] = data[j]
     data[j] = tmp
-    print(str(data[i]['day']) + "  " + str(data[i]['day']))
+
+
+def reLogin():
+    global cookies
+    user_data = {'_username' : "st43026", '_password' :"UH7phwwsx7"}
+    r = get("https://pro.guap.ru/user/login")
+    cookies = r.cookies
+    r = post("https://pro.guap.ru/user/login_check", data=user_data, cookies=cookies)
+    cookies = r.history[0].cookies.get_dict()
+    cookies.update(r.history[2].cookies.get_dict())
+
+reLogin()
 
 app.secret_key = CFG['secret_key']
 app.run(host='0.0.0.0', port=CFG['port'], debug=CFG['debug'])
