@@ -23,8 +23,9 @@ def mainPage():
     data = {'iduser' : "17398"}
     r = post("https://pro.guap.ru/get-student-tasksdictionaries/", data=data, cookies=cookies)
     data = loads(r.text)['tasks']
+    print(data)
     data = mysort(data)
-    output = '<head><link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48"></head>'
+    output = '<head><title>Задания с дедлайнами</title><meta charset="utf-8"><link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48"></head>'
     output += '<div style="border-colords;border-color: red;border-style: solid;border-width: thin; padding: 0.4%;">'
     output += '<div style="width: 30%; display: inline-block"><big><b>Название предмета</b></big></div>'
     output += '<div style="width: 30%; display: inline-block"><big><b>Название задания</b></big></div>'
@@ -34,10 +35,13 @@ def mainPage():
     for d in data:
         output += '<div style="border-colords;border-color: red;border-style: solid;border-width: thin; padding: 0.4%;"><div style="width: 30%; display: inline-block">'
         output += d['subject_name']
-        output += '</div><div style="width: 30%; display: inline-block">'
+        output += '</div><div style="width: 30%; display: inline-block;">'
         output += d['name']
-        output += '</div><div style="width: 30%; display:inline-block">'
+        output += '</div><div style="width: 20%; display: inline-block;">'
         output += str(d['day']) + " " + months[d['month'] - 1]
+        if d['hash'] != None :
+            output += '</div><div style="width: 10%; display: inline-block;">'
+            output += '<a href="https://pro.guap.ru/get-task/' + str(d['hash']) + '">Доп. материалы</a>'
         output += '</div></div>\n'
     return output
 
@@ -56,13 +60,13 @@ def mysort(data):
                 data.remove(d)
             else:
                 tmp = {}
-                tmp['harddeadline'] = {}
                 tmp['reportRequired'] = d['reportRequired']
                 tmp['year'] = int(date[0])
                 tmp['month'] = int(date[1])
                 tmp['day'] = int(date[2])
                 tmp['subject_name'] = d['subject_name']
                 tmp['name'] = d['name']
+                tmp['hash'] = d['hash']
                 out.append(tmp)
                 i += 1
 
