@@ -1,7 +1,7 @@
 function onClick(argument) {
     element = argument.parentElement.getElementsByClassName("desc")[0];
     if (element.style.display === "none") {
-        element.style.display = "block"
+        element.style.display = "inline-block"
         argument.innerHTML = "<i>Скрыть описание</i>"
     }
     else {

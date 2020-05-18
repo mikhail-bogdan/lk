@@ -16,11 +16,12 @@ months = ['января', 'февраля', 'марта', 'апреля', 'ма�
 
 @app.route('/')
 def mainPage():
-    global data
+    global data ##'<meta name="viewport" content="width=device-width, initial-scale=1">' \
+
     output = '<head>' \
              '<title>Задания с дедлайнами</title>' \
              '<meta charset="utf-8">' \
-             '<link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48">\n' \
+             '<link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48">' \
              '<link rel="stylesheet" type="text/css" href="/static/styles.css">' \
              '<script src="/static/functions.js"></script>' \
              '</head>'\
