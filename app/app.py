@@ -29,11 +29,10 @@ months = ['января', 'февраля', 'марта', 'апреля', 'ма�
 
 @app.route('/')
 def mainPage():
-    global data
+    global data  # '<meta name="viewport" content="width=device-width, initial-scale=1">' \
 
     output = '<head>' \
              '<title>Задания с дедлайнами</title>' \
-             '<meta name="viewport" content="width=device-width, initial-scale=1">' \
              '<meta charset="utf-8">' \
              '<link rel="icon" type="image/png" href="/static/favicon.png" sizes="48x48">' \
              '<link rel="stylesheet" type="text/css" href="/static/styles.css">' \
@@ -69,14 +68,16 @@ def mainPage():
 
 def mysort(data):
     out = []
-    for d in data:
+    i = 0
+    while i < len(data):  ## Задача об удалении нескольких элементов не решается циклом for each!
+        d = data[i]
         if d['harddeadline'] is None or d['reportRequired'] == "0":
             data.remove(d)
         else:
             time = localtime()
             year, mon, day = time.tm_year, time.tm_mon, time.tm_mday
             date = d['harddeadline'].split('-')
-            #print(date[0] + " " + str(year) + " " + date[1] + " " + str(mon) + "  " + date[2] + " " + str(day) + d['name'])
+            # print(date[0] + " " + str(year) + " " + date[1] + " " + str(mon) + "  " + date[2] + " " + str(day) + d['name'])
             if int(date[0]) < year:
                 data.remove(d)
             elif int(date[0]) == year and int(date[1]) < mon:
@@ -95,6 +96,7 @@ def mysort(data):
                 tmp['hash'] = d['hash']
                 tmp['description'] = "Без описания"
                 out.append(tmp)
+                i += 1
 
     for i in range(len(out)):
         for j in range(len(out)):
@@ -105,7 +107,8 @@ def mysort(data):
                     if out[i]['year'] == out[j]['year'] and out[i]['month'] > out[j]['month']:
                         myswap(out, i, j)
                     else:
-                        if out[i]['year'] == out[j]['year'] and out[i]['month'] == out[j]['month'] and out[i]['day'] > out[j]['day']:
+                        if out[i]['year'] == out[j]['year'] and out[i]['month'] == out[j]['month'] and out[i]['day'] > \
+                                out[j]['day']:
                             myswap(out, i, j)
     return out
 
@@ -150,7 +153,8 @@ class GetTasksDataThread(Thread):
             global prev_time
             time = now - prev_time
             global log_file
-            log_file.write("METHOD CALL: GetTasksData  " + str(now_date.tm_mday) + "d " + str(now_date.tm_hour) + "h  Delta: " + str(time.seconds // 60) + "m " + str(time.seconds % 60) + "s")
+            log_file.write("METHOD CALL: GetTasksData  " + str(now_date.tm_mday) + "d " + str(
+                now_date.tm_hour) + "h  Delta: " + str(time.seconds // 60) + "m " + str(time.seconds % 60) + "s\n")
             log_file.flush()
             prev_time = now
             sleep(600)
@@ -167,52 +171,55 @@ class VkBotThread(Thread):
         self.longPoll = VkBotLongPoll(self.vk_session, 195828373)
 
     def run(self):
-        global data
-        for event in self.longPoll.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                #print(event.obj.text)
+        try:
+            global data
+            for event in self.longPoll.listen():
+                if event.type == VkBotEventType.MESSAGE_NEW:
+                    # print(event.obj.text)
 
-                if event.obj.text == "Описание":
-                    if "payload" in event.obj:
-                        for d in data:
-                            if d['id'] == event.obj.payload:
-                                message = "Предмет: " + d['subject_name'] + "\nНазвание задания: " + d['name'] + "\nДедлайн: "
-                                message += str(d['day']) + " " + months[d['month'] - 1]
-                                message += "\nОписание: " + d['description']
+                    if event.obj.text == "Описание":
+                        if "payload" in event.obj:
+                            for d in data:
+                                if d['id'] == event.obj.payload:
+                                    message = "Предмет: " + d['subject_name'] + "\nНазвание задания: " + d[
+                                        'name'] + "\nДедлайн: "
+                                    message += str(d['day']) + " " + months[d['month'] - 1]
+                                    message += "\nОписание: " + d['description']
 
-                                self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
-                                                       message=message)
+                                    self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
+                                                           message=message)
+                            continue
+
+                    if event.obj.text != "Узнать дедлайны":
+                        keyboard = VkKeyboard()
+                        keyboard.add_button('Узнать дедлайны', color=VkKeyboardColor.PRIMARY)
+                        keyboard.add_openlink_button('Web версия', "http://lifeiscode.ru")
+                        self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
+                                               message="Бот, который подскажет дедлайны по заданиям в личном кабинете",
+                                               keyboard=keyboard.get_keyboard())
                         continue
 
+                    # print('Новое сообщение:')
+                    # print('Для меня от: ', end='')
+                    # print(event.obj.from_id)
+                    # print('Текст:', event.obj.text)
+                    # print()
 
-                if event.obj.text != "Узнать дедлайны":
-                    keyboard = VkKeyboard()
-                    keyboard.add_button('Узнать дедлайны', color=VkKeyboardColor.PRIMARY)
-                    keyboard.add_openlink_button('Web версия', "http://lifeiscode.ru")
-                    self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
-                                           message="Бот, который подскажет дедлайны по заданиям в личном кабинете", keyboard=keyboard.get_keyboard())
-                    continue
+                    for d in data:
+                        keyboard = VkKeyboard(one_time=False, inline=True)
+                        keyboard.add_button("Описание", VkKeyboardColor.PRIMARY, d['id'])
 
-                #print('Новое сообщение:')
+                        message = "Предмет: " + d['subject_name'] + "\nНазвание задания: " + d['name'] + "\nДедлайн: "
+                        message += str(d['day']) + " " + months[d['month'] - 1]
 
-                #print('Для меня от: ', end='')
-
-                #print(event.obj.from_id)
-
-                #print('Текст:', event.obj.text)
-                #print()
-
-
-                for d in data:
-                    keyboard = VkKeyboard(one_time=False, inline=True)
-                    keyboard.add_button("Описание", VkKeyboardColor.PRIMARY, d['id'])
-
-
-                    message = "Предмет: " + d['subject_name'] + "\nНазвание задания: " + d['name'] + "\nДедлайн: "
-                    message += str(d['day']) + " " + months[d['month'] - 1]
-
-                    self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
-                                       message=message, keyboard=keyboard.get_keyboard())
+                        self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
+                                               message=message, keyboard=keyboard.get_keyboard())
+        except BaseException as e:
+            log_file.write(str(e) + "\n")
+            log_file.write(str(e.__class__) + "\n")
+            log_file.flush()
+            log_file.close()
+            exit(0)
 
 
 def create_threads():
