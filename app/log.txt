@@ -1,8 +1,7 @@
-METHOD CALL: GetTasksData  1d 23h  Delta: 0m 4s
-METHOD CALL: GetTasksData  1d 23h  Delta: 10m 4s
-METHOD CALL: GetTasksData  2d 0h  Delta: 10m 4s
-METHOD CALL: GetTasksData  2d 0h  Delta: 10m 4s
-METHOD CALL: GetTasksData  2d 0h  Delta: 10m 4s
-METHOD CALL: GetTasksData  2d 0h  Delta: 10m 5s
-METHOD CALL: GetTasksData  2d 0h  Delta: 10m 4s
-METHOD CALL: GetTasksData  2d 0h  Delta: 10m 4s
+Error: Time: 2 17 13 49
+Type: name 'data' is not defined
+<class 'NameError'>
+Error: Time: 2 17 13 51
+Type: name 'data' is not defined
+<class 'NameError'>
+METHOD CALL: GetTasksData  2d 17h  Delta: 0m 6s

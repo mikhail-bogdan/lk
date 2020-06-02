@@ -215,11 +215,20 @@ class VkBotThread(Thread):
                         self.api.messages.send(user_id=event.obj.from_id, random_id=get_random_id(),
                                                message=message, keyboard=keyboard.get_keyboard())
         except BaseException as e:
+            now = datetime.now()
+            now_date = localtime(now.timestamp())
+            log_file.write("Error: Time: " + str(now_date.tm_mday) + " " + str(now_date.tm_hour)
+                           + " " + str(now_date.tm_min) + " " + str(now_date.tm_sec) + "\nType: ")
             log_file.write(str(e) + "\n")
             log_file.write(str(e.__class__) + "\n")
             log_file.flush()
-            log_file.close()
+            VkBotThread(vk_bot_key).start()
             exit(0)
+
+class FlaskThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+
 
 
 def create_threads():
